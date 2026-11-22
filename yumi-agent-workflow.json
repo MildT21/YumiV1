@@ -1,0 +1,371 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        288,
+        0
+      ],
+      "id": "27eb3e68-2a21-444c-9fe9-12ccacfb7c34",
+      "name": "Telegram Trigger",
+      "webhookId": "dcd371c7-144a-4621-9ea8-874fc775d067",
+      "credentials": {
+        "telegramApi": {
+          "id": "O2JQy6jbpghnoi1m",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}\n",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        736,
+        0
+      ],
+      "id": "293d7037-6213-4fe9-977b-68a19e1d1542",
+      "name": "Send a text message",
+      "webhookId": "326ff14d-a94d-4eed-a968-103f000e792b",
+      "credentials": {
+        "telegramApi": {
+          "id": "O2JQy6jbpghnoi1m",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Telegram Trigger').item.json.message.text }}\n",
+        "options": {
+          "systemMessage": "Ты — Yumi, умный и дружелюбный персональный ИИ-ассистент. Отвечай на языке пользователя. Если пользователь спрашивает о погоде в Атырау, обязательно используй свой инструмент get_atyrau_weather. Если вопрос не о погоде — просто отвечай сам без вызова инструментов.\nДля любых вопросов о правилах, паролях, обеде, контактах или регламенте компании Yumi Tech обязательно используй инструмент search_yumi_rules.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        448,
+        0
+      ],
+      "id": "adf99924-89ce-41b2-9113-f76454a91186",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        320,
+        208
+      ],
+      "id": "7a0d9c5a-b086-4e46-934b-19b1d7b258bb",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "AQj3z9GAFxoDwi6v",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        400,
+        208
+      ],
+      "id": "3d8982c2-4729-4861-8e9f-697a3b8f8ef0",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Makes an HTTP request and returns the response data\nGets Atyrau Weather Data.",
+        "url": "=https://api.open-meteo.com/v1/forecast?latitude=47.11&longitude=51.88&current_weather=true\n",
+        "options": {},
+        "optimizeResponse": true
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.5,
+      "position": [
+        480,
+        208
+      ],
+      "id": "a304f0bd-b827-43ef-9f9f-7f307c6bee1b",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        640,
+        352
+      ],
+      "id": "4ff869c3-88a2-4fcd-bc29-5a6dc12894ed",
+      "name": "Embeddings Google Gemini",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "AQj3z9GAFxoDwi6v",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "formTitle": "Yumi Rules",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "File",
+              "fieldType": "file",
+              "multipleFiles": false
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        368,
+        -336
+      ],
+      "id": "1c89f488-a4e8-41a7-8b3f-af289dda4552",
+      "name": "file",
+      "webhookId": "450b492a-1908-4ac0-88f7-968e403e8bb9"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        560,
+        -160
+      ],
+      "id": "43942e20-e7b1-42e3-8288-b26de25a1dd9",
+      "name": "Embeddings Google Gemini1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "AQj3z9GAFxoDwi6v",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "dataType": "binary",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        672,
+        -160
+      ],
+      "id": "48afe1a8-5b4f-4405-84e6-2a75b814aa76",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "qdrantCollection": {
+          "__rl": true,
+          "value": "yumi_rules",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+      "typeVersion": 1.4,
+      "position": [
+        592,
+        -336
+      ],
+      "id": "a9f9e309-8f21-4609-9d1a-a703f942bbdb",
+      "name": "yumi_rules",
+      "credentials": {
+        "qdrantApi": {
+          "id": "fVSLepfWy7wejLth",
+          "name": "Qdrant account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Для любых вопросов о правилах, паролях, обеде, контактах или регламенте компании Yumi Tech обязательно используй инструмент search_yumi_rules.\n",
+        "qdrantCollection": {
+          "__rl": true,
+          "value": "yumi_rules",
+          "mode": "list",
+          "cachedResultName": "yumi_rules"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+      "typeVersion": 1.4,
+      "position": [
+        624,
+        224
+      ],
+      "id": "3d8891eb-3d45-407c-b73b-b01daec9119c",
+      "name": "search_yumi_rules",
+      "credentials": {
+        "qdrantApi": {
+          "id": "fVSLepfWy7wejLth",
+          "name": "Qdrant account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini": {
+      "ai_embedding": [
+        [
+          {
+            "node": "search_yumi_rules",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "file": {
+      "main": [
+        [
+          {
+            "node": "yumi_rules",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "yumi_rules",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "yumi_rules",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "search_yumi_rules": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "94645c7c-a476-444f-9486-647345235dff",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6c23968626526fb4ba298e193017a8333c73a763b3e343e89a07033a1135d989"
+  },
+  "nodeGroups": [],
+  "id": "DiSlohpVRKlbdxzu",
+  "tags": []
+}
